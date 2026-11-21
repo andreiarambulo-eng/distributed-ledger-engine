@@ -1,0 +1,21 @@
+# <type>(<scope>): <short summary in imperative mood, max 50 chars>
+#
+# Pick a commit type:
+#   feat:     New feature, endpoint, worker, or capability
+#   fix:      Bug fix, race condition patch, or connection leak fix
+#   refactor: Code restructuring without changing behavior
+#   perf:     Query optimization, caching, or throughput improvement
+#   test:     Adding or updating pytest / testcontainers suites
+#   docs:     README, Mermaid diagrams, or API doc updates
+#   ci:       GitHub Actions workflows, ruff, or pre-commit config
+#   chore:    Dependencies (uv.lock), Dockerfiles, or .env.example
+#
+# Common scopes: api, worker, db, redis, di, config, docker, tests
+#
+# Examples:
+#   feat(worker): add SKIP LOCKED outbox polling loop
+#   fix(di): close asyncpg/psycopg pool cleanly on lifespan exit
+#   test(api): verify redis sliding-window rate limit with testcontainers
+#
+# Optional body (explain WHY, not just what):
+#

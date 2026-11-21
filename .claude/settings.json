@@ -1,0 +1,17 @@
+{
+    "permissions": {
+        "allow": [
+            "Bash(uv run pytest *)",
+            "Bash(uv run ruff *)"
+        ],
+        "deny": [
+            "Read(.env*)",
+            "Read(**/*.pem)",
+            "Read(**/*.key)",
+            "Read(data/**)",
+            "Bash(psql *)",
+            "Bash(docker exec *)",
+            "Bash(rm -rf *)"
+        ]
+    }
+}

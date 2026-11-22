@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.core.config import Settings
 from app.domain.entities import ServiceHealth, SystemHealth
@@ -18,7 +18,7 @@ class HealthService:
             app_name=self._settings.app_name,
             environment=self._settings.environment,
             status="alive",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             services=[],
         )
 
@@ -40,6 +40,6 @@ class HealthService:
             app_name=self._settings.app_name,
             environment=self._settings.environment,
             status=overall_status,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             services=services,
         )

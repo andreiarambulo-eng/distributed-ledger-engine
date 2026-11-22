@@ -63,12 +63,14 @@ If you are building an event consumer (Kafka, RabbitMQ, Redis streams), a Kubern
    from app.core.di import create_container
    from app.services.your_service import YourService
 
+
    async def main():
        container = create_container()
        async with container() as scope:
            service = await scope.get(YourService)
            await service.process()  # Consumer loop, polling, or single batch execution
        await container.close()
+
 
    if __name__ == "__main__":
        asyncio.run(main())
@@ -99,10 +101,9 @@ If a single repository needs to serve API traffic and also run background worker
    cp .env.example .env
    ```
 
-3. Spin up local database and cache:
-   ```bash
-   docker compose up -d postgres redis
-   ```
+3. Make sure your own PostgreSQL and Redis are running and that `POSTGRES_DSN` / `REDIS_URL`
+   in `.env` point at them. `docker compose up api` runs the API in Docker against the
+   same host services via `host.docker.internal`.
 
 4. Run locally:
    ```bash

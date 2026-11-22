@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware

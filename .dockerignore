@@ -1,0 +1,14 @@
+# Keep the build context small and free of local secrets.
+# (.env.test is intentionally NOT listed: the test image needs it.)
+.git
+.venv
+.claude
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.ruff_cache
+.coverage
+htmlcov
+.env
+.env.local
+.env.*.local

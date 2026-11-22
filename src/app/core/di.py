@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterable
+
 from dishka import Provider, Scope, make_async_container, provide
 from dishka.integrations.fastapi import FastapiProvider
 from elasticsearch import AsyncElasticsearch
@@ -63,9 +64,7 @@ class AppProvider(Provider):
         return PostgresRedisHealthRepository(pg_conn=conn, redis=redis)
 
     @provide(scope=Scope.REQUEST)
-    def get_health_service(
-        self, cfg: Settings, repo: HealthCheckRepository
-    ) -> HealthService:
+    def get_health_service(self, cfg: Settings, repo: HealthCheckRepository) -> HealthService:
         return HealthService(settings=cfg, health_repo=repo)
 
 

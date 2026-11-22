@@ -28,9 +28,7 @@ class TestProvider(Provider):
         return MockHealthRepository()
 
     @provide(scope=Scope.REQUEST)
-    def get_health_service(
-        self, cfg: Settings, repo: HealthCheckRepository
-    ) -> HealthService:
+    def get_health_service(self, cfg: Settings, repo: HealthCheckRepository) -> HealthService:
         return HealthService(settings=cfg, health_repo=repo)
 
 
@@ -41,9 +39,7 @@ async def client():
     test_app = create_app()
     setup_dishka(container, test_app)
 
-    async with AsyncClient(
-        transport=ASGITransport(app=test_app), base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
         yield ac
 
     await container.close()

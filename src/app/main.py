@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 
+from dishka import AsyncContainer
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,14 +32,16 @@ def _domain_error_handler(status_code: int, code: str):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    container = create_container()
-    setup_dishka(container, app)
     yield
-    await container.close()
+    # Releases APP-scoped resources (DB pool, clients) that were opened on first use.
+    await app.state.dishka_container.close()
 
 
-def create_app() -> FastAPI:
-    """FastAPI application factory."""
+def create_app(container: AsyncContainer | None = None) -> FastAPI:
+    """FastAPI application factory.
+
+    Pass `container` to swap dependencies (tests); by default the real one is built.
+    """
     application = FastAPI(
         title=settings.app_name,
         version="0.1.0",
@@ -55,6 +58,11 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # Dependency injection. Must happen here, not in lifespan: Dishka installs a middleware,
+    # and Starlette rejects new middleware once the app has started. Building the container
+    # is lazy, so no connections are opened until a dependency is first resolved.
+    setup_dishka(container or create_container(), application)
 
     # Domain Exception Handlers
     for exc_type, (status_code, code) in DOMAIN_ERROR_RESPONSES.items():

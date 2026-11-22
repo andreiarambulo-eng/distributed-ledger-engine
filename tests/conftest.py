@@ -7,7 +7,7 @@ os.environ["APP_ENV_FILE"] = str(Path(__file__).resolve().parent.parent / ".env.
 
 import pytest_asyncio
 from dishka import Provider, Scope, make_async_container, provide
-from dishka.integrations.fastapi import FastapiProvider, setup_dishka
+from dishka.integrations.fastapi import FastapiProvider
 from httpx import ASGITransport, AsyncClient
 
 from app.core.config import Settings, settings
@@ -52,8 +52,7 @@ class TestProvider(Provider):
 async def client():
     """Async HTTP test client with mocked infrastructure dependencies."""
     container = make_async_container(TestProvider(), FastapiProvider())
-    test_app = create_app()
-    setup_dishka(container, test_app)
+    test_app = create_app(container=container)
 
     async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
         yield ac

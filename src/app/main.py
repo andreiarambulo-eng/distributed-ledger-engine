@@ -8,7 +8,25 @@ from fastapi.responses import JSONResponse
 from app.api.v1.router import api_v1_router
 from app.core.config import settings
 from app.core.di import create_container
-from app.domain.exceptions import DomainError, EntityNotFoundError
+from app.domain.exceptions import AuthenticationError, DomainError, EntityNotFoundError
+
+# Domain exception -> (HTTP status, error code). Starlette picks the handler by walking the
+# exception's MRO, so DomainError only catches subclasses that have no entry of their own.
+DOMAIN_ERROR_RESPONSES: dict[type[DomainError], tuple[int, str]] = {
+    AuthenticationError: (status.HTTP_401_UNAUTHORIZED, "UNAUTHORIZED"),
+    EntityNotFoundError: (status.HTTP_404_NOT_FOUND, "NOT_FOUND"),
+    DomainError: (status.HTTP_400_BAD_REQUEST, "DOMAIN_ERROR"),
+}
+
+
+def _domain_error_handler(status_code: int, code: str):
+    async def handle(request: Request, exc: DomainError) -> JSONResponse:
+        return JSONResponse(
+            status_code=status_code,
+            content={"error": {"code": code, "message": exc.message}},
+        )
+
+    return handle
 
 
 @asynccontextmanager
@@ -39,19 +57,8 @@ def create_app() -> FastAPI:
     )
 
     # Domain Exception Handlers
-    @application.exception_handler(EntityNotFoundError)
-    async def handle_entity_not_found(request: Request, exc: EntityNotFoundError):
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content={"error": {"code": "NOT_FOUND", "message": exc.message}},
-        )
-
-    @application.exception_handler(DomainError)
-    async def handle_domain_error(request: Request, exc: DomainError):
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content={"error": {"code": "DOMAIN_ERROR", "message": exc.message}},
-        )
+    for exc_type, (status_code, code) in DOMAIN_ERROR_RESPONSES.items():
+        application.add_exception_handler(exc_type, _domain_error_handler(status_code, code))
 
     # Register Routers
     application.include_router(api_v1_router)

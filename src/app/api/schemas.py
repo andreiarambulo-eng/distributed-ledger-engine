@@ -18,6 +18,10 @@ class SystemHealthResponse(BaseModel):
     services: list[ServiceHealthResponse] = Field(default_factory=list)
 
 
+class AuthVerifyResponse(BaseModel):
+    authenticated: bool
+
+
 class ErrorDetail(BaseModel):
     code: str
     message: str

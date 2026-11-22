@@ -102,7 +102,8 @@ If a single repository needs to serve API traffic and also run background worker
    ```
 
 3. Make sure your own PostgreSQL and Redis are running and that `POSTGRES_DSN` / `REDIS_URL`
-   in `.env` point at them. `docker compose up api` runs the API in Docker against the
+   in `.env` point at them. Set `API_KEYS` (comma-separated); it is required whenever
+   `ENVIRONMENT` is not `local`. `docker compose up api` runs the API in Docker against the
    same host services via `host.docker.internal`.
 
 4. Run locally:

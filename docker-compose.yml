@@ -6,48 +6,27 @@ services:
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "8000:8000"
+    # API_KEYS and other settings come from .env when present.
+    env_file:
+      - path: .env
+        required: false
+    # Postgres/Redis are NOT started here: the API connects to instances you already run.
+    # Inside the container "localhost" is the container itself, so the defaults point at the
+    # host machine. Override with DOCKER_POSTGRES_DSN / DOCKER_REDIS_URL for other servers.
     environment:
-      - POSTGRES_DSN=postgresql://app:app@postgres:5432/app
-      - REDIS_URL=redis://redis:6379/0
-      - ENVIRONMENT=local
+      - POSTGRES_DSN=${DOCKER_POSTGRES_DSN:-postgresql://app:app@host.docker.internal:5432/app}
+      - REDIS_URL=${DOCKER_REDIS_URL:-redis://host.docker.internal:6379/0}
+      - ENVIRONMENT=development
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # makes the name resolve on Linux too
     volumes:
       - ./src:/app/src
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
 
-  postgres:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: app
-      POSTGRES_DB: app
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U app -d app"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-volumes:
-  postgres_data:
-  redis_data:
+  # Lint + test suite on the production Python version. Not started by `docker compose up`.
+  #   docker compose run --rm --build test
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    profiles: ["test"]

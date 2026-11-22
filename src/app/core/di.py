@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterable
+
 from dishka import Provider, Scope, make_async_container, provide
 from dishka.integrations.fastapi import FastapiProvider
 from elasticsearch import AsyncElasticsearch
@@ -10,6 +11,7 @@ from redis.asyncio import Redis
 from app.core.config import Settings, settings
 from app.domain.protocols import HealthCheckRepository
 from app.infrastructure.repositories import PostgresRedisHealthRepository
+from app.services.auth import ApiKeyAuthenticator
 from app.services.health import HealthService
 
 
@@ -58,14 +60,16 @@ class DatabaseProvider(Provider):
 
 
 class AppProvider(Provider):
+    @provide(scope=Scope.APP)
+    def get_api_key_authenticator(self, cfg: Settings) -> ApiKeyAuthenticator:
+        return ApiKeyAuthenticator(settings=cfg)
+
     @provide(scope=Scope.REQUEST)
     def get_health_repo(self, conn: AsyncConnection, redis: Redis) -> HealthCheckRepository:
         return PostgresRedisHealthRepository(pg_conn=conn, redis=redis)
 
     @provide(scope=Scope.REQUEST)
-    def get_health_service(
-        self, cfg: Settings, repo: HealthCheckRepository
-    ) -> HealthService:
+    def get_health_service(self, cfg: Settings, repo: HealthCheckRepository) -> HealthService:
         return HealthService(settings=cfg, health_repo=repo)
 
 

@@ -13,8 +13,8 @@ Tooling is `uv` with Python 3.12. The package lives under `src/`. pytest finds i
 ```bash
 uv sync                                   # install deps (incl. dev group)
 cp .env.example .env
-docker compose up -d postgres redis       # local backing services
-uv run uvicorn app.main:app --reload      # run API (docs at /docs)
+uv run uvicorn app.main:app --reload      # run API against your own local Postgres/Redis (docs at /docs)
+docker compose up api                     # or run the API in Docker; it connects to host.docker.internal
 
 uv run pytest                             # all tests
 uv run pytest tests/test_pipeline.py::test_readiness_probe   # single test

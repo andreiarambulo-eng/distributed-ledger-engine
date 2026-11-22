@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -15,6 +16,10 @@ class SystemHealthResponse(BaseModel):
     status: str
     timestamp: datetime
     services: list[ServiceHealthResponse] = Field(default_factory=list)
+
+
+class AuthVerifyResponse(BaseModel):
+    authenticated: bool
 
 
 class ErrorDetail(BaseModel):

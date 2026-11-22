@@ -7,7 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
-    "pydantic-settings>=2.6.0",
+    "pydantic-settings>=2.7.0",
     "dishka>=1.4.0",
     "psycopg[binary,pool]>=3.2.0",
     "redis>=5.2.0",
@@ -32,9 +32,12 @@ target-version = "py312"
 select = ["E", "F", "I", "UP", "B", "SIM"]
 ignore = []
 
+[tool.ruff.lint.per-file-ignores]
+# conftest sets APP_ENV_FILE before importing the app, so its imports can't sit at the top.
+"tests/conftest.py" = ["E402"]
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
-pythonpath = ["src"]
-
 pythonpath = ["src"]
